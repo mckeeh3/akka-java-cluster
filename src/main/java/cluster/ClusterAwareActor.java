@@ -6,6 +6,7 @@ import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.cluster.Cluster;
 import akka.cluster.Member;
+import akka.cluster.MemberStatus;
 import scala.concurrent.duration.Duration;
 import scala.concurrent.duration.FiniteDuration;
 
@@ -27,10 +28,10 @@ class ClusterAwareActor extends AbstractLoggingActor {
 
     private void tick() {
         Member me = cluster.selfMember();
-        log().debug("tick {}", me);
+        log().debug("Tick {}", me);
 
         for (Member member : cluster.state().getMembers()) {
-            if (!me.equals(member)) {
+            if (!me.equals(member) && member.status().equals(MemberStatus.up())) {
                 tick(member);
             }
         }
@@ -39,22 +40,22 @@ class ClusterAwareActor extends AbstractLoggingActor {
     private void tick(Member member) {
         String path = member.address().toString() + getSelf().path().toStringWithoutAddress();
         ActorSelection actorSelection = getContext().actorSelection(path);
-        log().debug("ping -> {}", actorSelection);
+        log().debug("Ping -> {}", actorSelection);
         actorSelection.tell("ping", getSelf());
     }
 
     private void ping() {
-        log().debug("ping <- {}", getSender());
+        log().debug("Ping <- {}", getSender());
         getSender().tell("pong", getSelf());
     }
 
     private void pong() {
-        log().debug("pong <- {}", getSender());
+        log().debug("Pong <- {}", getSender());
     }
 
     @Override
     public void preStart() {
-        log().debug("start");
+        log().debug("Start");
         ticker = getContext().getSystem().scheduler()
                 .schedule(Duration.Zero(),
                         tickInterval,
@@ -67,7 +68,7 @@ class ClusterAwareActor extends AbstractLoggingActor {
     @Override
     public void postStop() {
         ticker.cancel();
-        log().debug("stop");
+        log().debug("Stop");
     }
 
     static Props props() {

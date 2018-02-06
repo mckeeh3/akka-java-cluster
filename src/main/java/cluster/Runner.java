@@ -38,13 +38,7 @@ class Runner {
         List<ActorSystem> actorSystems = new ArrayList<>();
 
         for (String port : ports) {
-            Config config = ConfigFactory.parseString(
-                    String.format("akka.remote.netty.tcp.port=%s%n", port) +
-                            String.format("akka.remote.artery.canonical.port=%s%n", port))
-                    .withFallback(ConfigFactory.load()
-                    );
-
-            ActorSystem actorSystem = ActorSystem.create("ClusterDemo", config);
+            ActorSystem actorSystem = ActorSystem.create("cluster", setupConfig(port));
 
             actorSystem.actorOf(ClusterListenerActor.props(), "clusterListener");
             actorSystem.actorOf(ClusterAwareActor.props(), "clusterAware");
@@ -52,6 +46,14 @@ class Runner {
             actorSystems.add(actorSystem);
         }
         return actorSystems;
+    }
+
+    private static Config setupConfig(String port) {
+        return ConfigFactory.parseString(
+                String.format("akka.remote.netty.tcp.port=%s%n", port) +
+                        String.format("akka.remote.artery.canonical.port=%s%n", port))
+                .withFallback(ConfigFactory.load()
+                );
     }
 
     private static void writef(String format, Object... args) {
