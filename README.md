@@ -33,7 +33,8 @@ mvn exec:java -Dexec.args="0" > /tmp/$(basename $PWD)-3.log
 ~~~~bash
 mvn exec:java -Dexec.args="0" > /tmp/$(basename $PWD)-4.log
 ~~~~
-This runs a 4 node Akka cluster start 2 nodes on ports 2551 and 2552, which are the cluster seed nodes as configured and the `application.conf` file.
+This runs a 4 node Akka cluster starting 2 nodes on ports 2551 and 2552, which are the cluster seed nodes as configured and the `application.conf` file.
+And 2 nodes on randomly selected port numbers.
 The optional redirect `> /tmp/$(basename $PWD)-4.log` is an example for pushing the log output to filenames based on the project direcctory name.
 
 ### Description
