@@ -22,8 +22,7 @@ class Runner {
             actorSystems = startupClusterNodes(Arrays.asList(args));
         }
 
-        writef("Hit enter to stop%n");
-        readLine();
+        hitEnterToStop();
 
         for (ActorSystem actorSystem : actorSystems) {
             Cluster cluster = Cluster.get(actorSystem);
@@ -32,7 +31,7 @@ class Runner {
     }
 
     private static List<ActorSystem> startupClusterNodes(List<String> ports) {
-        writef("Start cluster on port(s) %s%n", ports);
+        System.out.printf("Start cluster on port(s) %s%n", ports);
         List<ActorSystem> actorSystems = new ArrayList<>();
 
         for (String port : ports) {
@@ -54,14 +53,13 @@ class Runner {
                 );
     }
 
-    private static void writef(String format, Object... args) {
-        System.out.printf(format, args);
-    }
+    private static void hitEnterToStop() {
+        System.out.println("Hit Enter to stop");
 
-    private static void readLine() {
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
         try {
             reader.readLine();
+            reader.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

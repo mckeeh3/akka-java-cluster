@@ -13,7 +13,7 @@ import scala.concurrent.duration.FiniteDuration;
 import java.util.concurrent.TimeUnit;
 
 class ClusterAwareActor extends AbstractLoggingActor {
-    private final Cluster cluster = Cluster.get(getContext().getSystem());
+    private final Cluster cluster = Cluster.get(context().system());
     private final FiniteDuration tickInterval = Duration.create(10, TimeUnit.SECONDS);
     private Cancellable ticker;
 
@@ -38,30 +38,30 @@ class ClusterAwareActor extends AbstractLoggingActor {
     }
 
     private void tick(Member member) {
-        String path = member.address().toString() + getSelf().path().toStringWithoutAddress();
-        ActorSelection actorSelection = getContext().actorSelection(path);
+        String path = member.address().toString() + self().path().toStringWithoutAddress();
+        ActorSelection actorSelection = context().actorSelection(path);
         log().debug("Ping -> {}", actorSelection);
-        actorSelection.tell("ping", getSelf());
+        actorSelection.tell("ping", self());
     }
 
     private void ping() {
-        log().debug("Ping <- {}", getSender());
-        getSender().tell("pong", getSelf());
+        log().debug("Ping <- {}", sender());
+        sender().tell("pong", self());
     }
 
     private void pong() {
-        log().debug("Pong <- {}", getSender());
+        log().debug("Pong <- {}", sender());
     }
 
     @Override
     public void preStart() {
         log().debug("Start");
-        ticker = getContext().getSystem().scheduler()
+        ticker = context().system().scheduler()
                 .schedule(Duration.Zero(),
                         tickInterval,
-                        getSelf(),
+                        self(),
                         "tick",
-                        getContext().getSystem().dispatcher(),
+                        context().system().dispatcher(),
                         null);
     }
 

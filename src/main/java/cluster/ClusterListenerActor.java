@@ -15,7 +15,7 @@ import akka.cluster.ClusterEvent.CurrentClusterState;
 import akka.cluster.Member;
 
 class ClusterListenerActor extends AbstractLoggingActor {
-    private final Cluster cluster = Cluster.get(getContext().getSystem());
+    private final Cluster cluster = Cluster.get(context().system());
 
     @Override
     public Receive createReceive() {
@@ -34,7 +34,7 @@ class ClusterListenerActor extends AbstractLoggingActor {
     @Override
     public void preStart() {
         log().debug("Start");
-        cluster.subscribe(getSelf(), ClusterEvent.initialStateAsEvents(),
+        cluster.subscribe(self(), ClusterEvent.initialStateAsEvents(),
                 MemberEvent.class,
                 UnreachableMember.class);
     }
