@@ -38,7 +38,6 @@ class Runner {
             ActorSystem actorSystem = ActorSystem.create("cluster", setupClusterNodeConfig(port));
 
             actorSystem.actorOf(ClusterListenerActor.props(), "clusterListener");
-            actorSystem.actorOf(ClusterAwareActor.props(), "clusterAware");
 
             actorSystems.add(actorSystem);
         }
