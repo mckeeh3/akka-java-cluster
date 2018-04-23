@@ -48,8 +48,7 @@ class Runner {
         return ConfigFactory.parseString(
                 String.format("akka.remote.netty.tcp.port=%s%n", port) +
                         String.format("akka.remote.artery.canonical.port=%s%n", port))
-                .withFallback(ConfigFactory.load()
-                );
+                .withFallback(ConfigFactory.load());
     }
 
     private static void hitEnterToStop() {
