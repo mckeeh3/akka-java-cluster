@@ -55,6 +55,7 @@ alias m4='clear ; mvn exec:java -Dexec.args="0" > /tmp/$(basename $PWD)-4.log'
 
 The p1-6 alias commands are shortcuts for cd'ing into one of the six project directories.
 The m1-4 alias commands start and Akka node with the appropriate port. Stdout is also redirected to the /tmp directory.
+
 ### Description
 
 TODO
