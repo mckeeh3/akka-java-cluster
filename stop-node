@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Use this script to stop one Akka cluster node. The command line parameter must be from 1 to 9.
+
+usage() {
+  echo "Usage: $0 node - Stop cluster node, node number must be between 1-9" ; exit 1
+}
+
+[ $# -eq 0 ] && usage
+
+node=$1
+jarFilename=$(find target -name *allinone.jar*)
+
+startNode() {
+  node=$1
+  port="255"$node
+  echo "Stop node $1 on port $port"
+  pkill -f "$jarFilename $port"
+}
+
+if [[ $node =~ ^[1-9]$ ]] ; then
+  startNode $node
+else
+  echo "Cluster node number $node is invalid"
+  usage
+fi

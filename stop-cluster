@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Use this script to stop all of the cluster nodes started with the start-cluster script.
+
+jarFilename=$(find target -name *allinone.jar*)
+
+pkill -f $jarFilename

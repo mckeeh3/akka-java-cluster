@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Use this script to start one Akka cluster node. The command line parameter must be from 1 to 9. The
+# node's JVMs is started as a background process. The process logs both stdin and stderr to a file located in
+# the /tmp directory. The log file name is derived from the current directory name with a suffix of "-N.log",
+# N is the node number. The Akka port number is set to 255N, N is the node number.
+
+usage() {
+  echo "Usage: $0 node - Start cluster node, node number must be between 1-9" ; exit 1
+}
+
+[ $# -eq 0 ] && usage
+
+node=$1
+jarFilename=$(find target -name *allinone.jar*)
+
+startNode() {
+  node=$1
+  port="255"$node
+  echo "Start node $1 on port $port"
+  java -jar $jarFilename $port &> /tmp/$(basename $PWD)-$node.log &
+}
+
+if [[ $node =~ ^[1-9]$ ]] ; then
+  startNode $node
+else
+  echo "Cluster node number $node is invalid"
+  usage
+fi
