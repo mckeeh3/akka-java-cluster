@@ -12,6 +12,7 @@
         <java.version>8</java.version>
         <scala.version>2.12</scala.version>
         <akka.version>2.5.21</akka.version>
+        <akka.management.version>1.0.0</akka.management.version>
     </properties>
 
     <dependencies>
@@ -41,10 +42,14 @@
             <version>1.2.3</version>
         </dependency>
         <dependency>
-            <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_${scala.version}</artifactId>
-            <version>${akka.version}</version>
-            <scope>test</scope>
+            <groupId>com.lightbend.akka.management</groupId>
+            <artifactId>akka-management_${scala.version}</artifactId>
+            <version>${akka.management.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.lightbend.akka.management</groupId>
+            <artifactId>akka-management-cluster-http_${scala.version}</artifactId>
+            <version>${akka.management.version}</version>
         </dependency>
     </dependencies>
 
@@ -80,6 +85,45 @@
                     <mainClass>cluster.Runner</mainClass>
                 </configuration>
             </plugin>
+
+            <!-- See When using JarJar, OneJar, Assembly or any jar-bundler -->
+            <!-- https://doc.akka.io/docs/akka/current/general/configuration.html#when-using-jarjar-onejar-assembly-or-any-jar-bundler -->
+            <!-- mvn clean package docker:build -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>1.5</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>true</shadedArtifactAttached>
+                            <shadedClassifierName>allinone</shadedClassifierName>
+                            <artifactSet>
+                                <includes>
+                                    <include>*:*</include>
+                                </includes>
+                            </artifactSet>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>reference.conf</resource>
+                                </transformer>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Main-Class>cluster.Runner</Main-Class>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 

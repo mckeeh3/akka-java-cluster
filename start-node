@@ -17,7 +17,8 @@ jarFilename=$(find target -name *allinone.jar*)
 startNode() {
   node=$1
   port="255"$node
-  echo "Start node $1 on port $port"
+  export akka_management_http_port="855"$node
+  echo "Start node $1 on port $port, management port $akka_management_http_port"
   java -jar $jarFilename $port &> /tmp/$(basename $PWD)-$node.log &
 }
 
