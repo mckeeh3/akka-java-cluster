@@ -1,7 +1,5 @@
 #!/bin/bash
 
-alias toPrettyJson='python -m json.tool'
-
 nodeStatus() {
   node=$1
   port="855"$node
