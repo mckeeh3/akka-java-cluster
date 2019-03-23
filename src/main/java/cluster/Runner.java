@@ -31,13 +31,13 @@ class Runner {
         ports.forEach(port -> {
             ActorSystem actorSystem = ActorSystem.create("cluster", setupClusterNodeConfig(port));
 
+            AkkaManagement.get(actorSystem).start();
+
             actorSystem.actorOf(ClusterListenerActor.props(), "clusterListener");
 
             addCoordinatedShutdownTask(actorSystem, CoordinatedShutdown.PhaseClusterShutdown());
 
             actorSystem.log().info("Akka node {}", actorSystem.provider().getDefaultAddress());
-
-            AkkaManagement.get(actorSystem).start();
         });
     }
 

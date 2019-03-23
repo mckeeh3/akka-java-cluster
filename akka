@@ -1,0 +1,77 @@
+#!/bin/bash
+set +x
+helpAll() {
+  echo "Help all - TODO"
+}
+
+helpCluster() {
+  echo "Help cluster TODO"
+}
+
+helpNode() {
+  echo "Help node TODO"
+}
+
+clusterCommand() {
+  command=$1
+  argument=$2
+
+  case $command in
+    "start")
+      ./cluster-start $argument
+      ;;
+    "stop")
+      ./cluster-stop
+      ;;
+    "status")
+      ./cluster-status
+      ;;
+    *)
+      helpCluster
+      ;;
+  esac
+}
+
+nodeCommand() {
+  command=$1
+  argument=$2
+
+  case $command in
+    "start")
+      ./node-start $argument
+      ;;
+    "stop")
+      ./node-stop $argument
+      ;;
+    "tail")
+      ./node-tail $argument
+      ;;
+    *)
+      helpNode
+      ;;
+  esac
+}
+
+command() {
+  command=$1
+  subCommand=$2
+  argument=$3
+
+  case $command in
+    "cluster")
+      clusterCommand $subCommand $argument
+      ;;
+    "node")
+      nodeCommand $subCommand $argument
+      ;;
+    *)
+      helpCluster
+      ;;
+  esac
+}
+
+if [ $# -eq 0 ] ; then
+  helpAll
+else
+  command $1 $2 $3
+fi

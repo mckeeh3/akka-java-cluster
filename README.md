@@ -26,6 +26,9 @@ According to the [Akka documentation](https://doc.akka.io/docs/akka/current/comm
 
 *Akka cluster allows for building distributed applications, where one application or service spans multiple nodes.*"
 
+The above paragraphs from the Akka documentation are packed with a lot of concepts that initially may be hard to wrap your head around. Consider some of the terms that were thrown out in just two sentences, terms like "fault-tolerant," "decentralized," "peer-to-peer" and "no single point of failure." The last sentence almost casually states "where one application or service spans multiple nodes." Wait; what? How does an application or service span multiple nodes?
+
+
 ### Installation
 
 ~~~~bash
@@ -87,37 +90,42 @@ The m1-4 alias commands start and Akka node with the appropriate port. Stdout is
 
 ### Run Scripts
 
-The project contains 5 scripts that can be used to start and stop individual cluster nodes or start and stop a cluster of nodes.
+The project contains 6 scripts that can be used to start and stop individual cluster nodes or start and stop a cluster of nodes.
 
-Use the `./start-node N` and `./stop-node N` scripts to start and stop individual nodes. The N argument is the node number,
+Use the `./node-start N` and `./node-stop N` scripts to start and stop individual nodes. The N argument is the node number,
 which must be between 1 and 9. The start script will start an Akka node running on port 255N. Both `stdin` and `stderr`
 output is set to a file in the `/tmp` directory using the naming convention `/tmp/<project-dir-name>-N.log`.
 
 Start node 1 on port 2551 and node 2 on port 2552.
 ~~~bash
-./start-node 1
-./start-node 2
+./node-start 1
+./node-start 2
 ~~~
 
 Stop node 3 on port 2553.
 ~~~bash
-./stop-node 3
+./node-stop 3
 ~~~
 
-Use the `./start-cluster N` and `./stop-cluster` scripts to start and stop multiple cluster nodes. The N argument is the
-number of cluster nodes to be started. The `./stop-cluster` script stops all current running nodes.
+Use the `./cluster-start N` and `./cluster-stop` scripts to start and stop multiple cluster nodes. The N argument is the
+number of cluster nodes to be started. The `./cluster-stop` script stops all current running nodes.
 
 Start a cluster of four nodes on ports 2551, 2552, 2553, and 2554.
 ~~~bash
-./start-cluster 4
+./cluster-start 4
 ~~~
 
 Stop all currently running cluster nodes.
 ~~~bash
-./stop-cluster
+./cluster-stop
 ~~~
 
-You can use the `start-cluster` script to start multiple nodes and then use `start-node` and `stop-node`
+You can use the `cluster-start` script to start multiple nodes and then use `node-start` and `node-stop`
 to start and stop individual nodes.
 
 Use the `./tail-node N` script to `tail -f` the log file for the node N.
+
+The `cluster-status` script the shows the status of the Cluster in JSON format using the
+[Akka Management]()
+extension
+[Cluster Http Management]().

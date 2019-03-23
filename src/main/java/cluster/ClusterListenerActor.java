@@ -1,6 +1,7 @@
 package cluster;
 
 import akka.actor.AbstractLoggingActor;
+import akka.actor.Address;
 import akka.actor.Cancellable;
 import akka.actor.Props;
 import akka.cluster.Cluster;
@@ -9,6 +10,9 @@ import akka.cluster.ClusterEvent.CurrentClusterState;
 import akka.cluster.Member;
 
 import java.time.Duration;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
 
 class ClusterListenerActor extends AbstractLoggingActor {
     private final Cluster cluster = Cluster.get(context().system());
@@ -64,21 +68,28 @@ class ClusterListenerActor extends AbstractLoggingActor {
     }
 
     private void logClusterMembers(CurrentClusterState currentClusterState) {
-        Member oldest = cluster.selfMember();
-        for (Member member : currentClusterState.getMembers()) {
-            if (member.isOlderThan(oldest)) {
-                oldest = member;
-            }
-        }
+        Optional<Member> old = StreamSupport.stream(currentClusterState.getMembers().spliterator(), false)
+                .reduce((older, member) -> older.isOlderThan(member) ? older : member);
 
-        int count = 0;
-        for (Member member : currentClusterState.getMembers()) {
-            if (member.equals(oldest)) {
-                log().info(" {} (OLDEST) {}", ++count, member);
-            } else {
-                log().info(" {} {}", ++count, member);
-            }
-        }
+        Member oldest = old.orElse(cluster.selfMember());
+
+        StreamSupport.stream(currentClusterState.getMembers().spliterator(), false)
+                .forEach(new Consumer<Member>() {
+                    int m = 0;
+
+                    @Override
+                    public void accept(Member member) {
+                        log().info("{} {}{}{}", ++m, leader(member), oldest(member), member);
+                    }
+
+                    private String leader(Member member) {
+                        return member.address().equals(currentClusterState.getLeader()) ? "(LEADER) " : "";
+                    }
+
+                    private String oldest(Member member) {
+                        return oldest.equals(member) ? "(OLDEST) " : "";
+                    }
+                });
     }
 
     private static class ShowClusterState {
