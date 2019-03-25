@@ -37,12 +37,54 @@ cd akka-java-cluster
 mvn clean package
 ~~~~
 
-### Running from the command line
+### Run a cluster (Mac, Linux)
+
+The project contains a set of scripts that can be used to start and stop individual cluster nodes or start and stop a cluster of nodes.
+
+The main script `./akka` is provided to run a cluster of nodes or start and stop individual nodes.
+Use `./akka node start [1-9] | stop` to start and stop individual nodes and `./akka cluster start [1-9] | stop` to start and stop a cluster of nodes.
+The `cluster` and `node` start options will start Akka nodes on ports 2551 through 2559.
+Both `stdin` and `stderr` output is sent to a file in the `/tmp` directory using the file naming convention `/tmp/<project-dir-name>-N.log`.
+
+Start node 1 on port 2551 and node 2 on port 2552.
+~~~bash
+./akka node start 1
+./akka node start 2
+~~~
+
+Stop node 3 on port 2553.
+~~~bash
+./akka node stop 3
+~~~
+
+Start a cluster of four nodes on ports 2551, 2552, 2553, and 2554.
+~~~bash
+./akka cluster start 4
+~~~
+
+Stop all currently running cluster nodes.
+~~~bash
+./akka cluster stop
+~~~
+
+You can use the `./akka cluster start [1-9]` script to start multiple nodes and then use `./akka node start [1-9]` and `./akka node stop [1-9]`
+to start and stop individual nodes.
+
+Use the `./akka node tail [1-9]` to `tail -f` a log file for nodes 1 through 9.
+
+The `./akka cluster status` command the shows the status of a currently running cluster in JSON format using the
+[Akka Management](https://developer.lightbend.com/docs/akka-management/current/index.html)
+extension
+[Cluster Http Management](https://developer.lightbend.com/docs/akka-management/current/cluster-http-management.html).
+
+### Run a cluster (Windows, command line)
 
 The following Maven command runs a signle JVM with 3 Akka actor systems on ports 2551, 2552, and a radmonly selected port.
 ~~~~bash
 mvn exec:java
 ~~~~
+Use CTRL-C to stop.
+
 To run on specific ports use the following `-D` option for passing in command line arguements.
 ~~~~bash
 mvn exec:java -Dexec.args="2551"
@@ -87,45 +129,3 @@ alias m4='clear ; mvn exec:java -Dexec.args="0" > /tmp/$(basename $PWD)-4.log'
 
 The p1-6 alias commands are shortcuts for cd'ing into one of the six project directories.
 The m1-4 alias commands start and Akka node with the appropriate port. Stdout is also redirected to the /tmp directory.
-
-### Run Scripts
-
-The project contains 6 scripts that can be used to start and stop individual cluster nodes or start and stop a cluster of nodes.
-
-Use the `./node-start N` and `./node-stop N` scripts to start and stop individual nodes. The N argument is the node number,
-which must be between 1 and 9. The start script will start an Akka node running on port 255N. Both `stdin` and `stderr`
-output is set to a file in the `/tmp` directory using the naming convention `/tmp/<project-dir-name>-N.log`.
-
-Start node 1 on port 2551 and node 2 on port 2552.
-~~~bash
-./node-start 1
-./node-start 2
-~~~
-
-Stop node 3 on port 2553.
-~~~bash
-./node-stop 3
-~~~
-
-Use the `./cluster-start N` and `./cluster-stop` scripts to start and stop multiple cluster nodes. The N argument is the
-number of cluster nodes to be started. The `./cluster-stop` script stops all current running nodes.
-
-Start a cluster of four nodes on ports 2551, 2552, 2553, and 2554.
-~~~bash
-./cluster-start 4
-~~~
-
-Stop all currently running cluster nodes.
-~~~bash
-./cluster-stop
-~~~
-
-You can use the `cluster-start` script to start multiple nodes and then use `node-start` and `node-stop`
-to start and stop individual nodes.
-
-Use the `./tail-node N` script to `tail -f` the log file for the node N.
-
-The `cluster-status` script the shows the status of the Cluster in JSON format using the
-[Akka Management]()
-extension
-[Cluster Http Management]().

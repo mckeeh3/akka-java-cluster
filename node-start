@@ -6,25 +6,26 @@
 # N is the node number. The Akka port number is set to 255N, N is the node number.
 
 usage() {
-  echo "Usage: $0 node - Start cluster node, node number must be between 1-9" ; exit 1
+  echo "Usage: $0 node - Start cluster node, node number must 1 through 9." ; exit 1
 }
 
 [ $# -eq 0 ] && usage
 
 node=$1
-jarFilename=$(find target -name *allinone.jar*)
+scriptPath=$(dirname $0)
+jarFilename=$(find $scriptPath/target -name *allinone.jar*)
 
 startNode() {
   node=$1
   port="255"$node
   export akka_management_http_port="855"$node
   echo "Start node $1 on port $port, management port $akka_management_http_port"
-  java -jar $jarFilename $port &> /tmp/$(basename $PWD)-$node.log &
+  java -jar $jarFilename $port &> /tmp/$(basename $scriptPath)-$node.log &
 }
 
 if [[ $node =~ ^[1-9]$ ]] ; then
   startNode $node
 else
-  echo "Cluster node number $node is invalid"
+  echo "Cluster node number $node is invalid. The node number must be 1 through 9."
   usage
 fi
