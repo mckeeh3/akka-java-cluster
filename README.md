@@ -72,9 +72,9 @@ Stop all currently running cluster nodes.
 You can use the `./akka cluster start [1-9]` script to start multiple nodes and then use `./akka node start [1-9]` and `./akka node stop [1-9]`
 to start and stop individual nodes.
 
-Use the `./akka node tail [1-9]` to `tail -f` a log file for nodes 1 through 9.
+Use the `./akka node tail [1-9]` command to `tail -f` a log file for nodes 1 through 9.
 
-The `./akka cluster status` command the shows the status of a currently running cluster in JSON format using the
+The `./akka cluster status` command displays the status of a currently running cluster in JSON format using the
 [Akka Management](https://developer.lightbend.com/docs/akka-management/current/index.html)
 extension
 [Cluster Http Management](https://developer.lightbend.com/docs/akka-management/current/cluster-http-management.html).

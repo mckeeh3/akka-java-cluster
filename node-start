@@ -13,6 +13,9 @@ usage() {
 
 node=$1
 scriptPath=$(dirname $0)
+scriptPath=$(dirname $0)
+scriptPathFull=$(cd $(dirname $0) ; pwd -P)
+scriptFilename=$(basename $scriptPathFull)
 jarFilename=$(find $scriptPath/target -name *allinone.jar*)
 
 startNode() {
@@ -20,7 +23,7 @@ startNode() {
   port="255"$node
   export akka_management_http_port="855"$node
   echo "Start node $1 on port $port, management port $akka_management_http_port"
-  java -jar $jarFilename $port &> /tmp/$(basename $scriptPath)-$node.log &
+  java -jar $jarFilename $port &> /tmp/$scriptFilename-$node.log &
 }
 
 if [[ $node =~ ^[1-9]$ ]] ; then
