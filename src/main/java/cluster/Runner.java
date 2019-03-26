@@ -3,15 +3,10 @@ package cluster;
 import akka.Done;
 import akka.actor.ActorSystem;
 import akka.actor.CoordinatedShutdown;
-import akka.cluster.Cluster;
 import akka.management.javadsl.AkkaManagement;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

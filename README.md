@@ -37,6 +37,8 @@ cd akka-java-cluster
 mvn clean package
 ~~~~
 
+The Maven command builds the project and creates a self contained runnable JAR.
+
 ### Run a cluster (Mac, Linux)
 
 The project contains a set of scripts that can be used to start and stop individual cluster nodes or start and stop a cluster of nodes.
