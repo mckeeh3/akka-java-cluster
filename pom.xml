@@ -13,6 +13,7 @@
         <scala.version>2.12</scala.version>
         <akka.version>2.5.22</akka.version>
         <akka.management.version>1.0.0</akka.management.version>
+        <fst.version>2.56</fst.version>
     </properties>
 
     <dependencies>
@@ -50,6 +51,11 @@
             <groupId>com.lightbend.akka.management</groupId>
             <artifactId>akka-management-cluster-http_${scala.version}</artifactId>
             <version>${akka.management.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.ruedigermoeller</groupId>
+            <artifactId>fst</artifactId>
+            <version>${fst.version}</version>
         </dependency>
     </dependencies>
 
