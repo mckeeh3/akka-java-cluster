@@ -33,6 +33,157 @@ The actor model "*[(Wikipedia)](https://en.wikipedia.org/wiki/Actor_model) treat
 
 Akka actors communicate with each other via asynchronous messages. Akka actors systems run on Java Virtual Machines, and with Akka clusters, a single actor system may logically span multiple networked JVMs. This networked actor system abstraction layer makes it possible for actors to transparently communicate with each across a cluster of nodes. One way to think of this is that from the perspective of actors, they live in an actor system, the fact that the actor system is running on one or more nodes is, for the most part, hidden within the abstraction layer.
 
+### The ClusterListenerActor Actor
+
+Akka actors are implemented in Java or Scala. You create actors as Java or Scala classes. There are two ways to implement actors, either untyped and typed. Untyped actors are used in this Akka Java cluster example project series.
+
+The Akka documentation section about 
+[Actors](https://doc.akka.io/docs/akka/current/actors.html#actors)
+is a good starting point for those of you that are interested in diving into the details of how actors work and how they are implemented.
+
+The first actor we will look at is named ClusterListenerActor. This actor is set up to receive messages about cluster events.  As nodes join and leave the cluster, this actor receives messages about these events. Theses received messages are then written to a logger.
+
+The ClusterListenerActor provides a simple view of cluster activity.
+Here is an example of the log output:
+~~~
+03:20:29.569 INFO  cluster-akka.actor.default-dispatcher-4 akka.tcp://cluster@127.0.0.1:2551/user/clusterListener - MemberUp(Member(address = akka.tcp://cluster@127.0.0.1:2553, status = Up)) sent to Member(address = akka.tcp://cluster@127.0.0.1:2551, status = Up)
+03:20:29.570 INFO  cluster-akka.actor.default-dispatcher-4 akka.tcp://cluster@127.0.0.1:2551/user/clusterListener - 1 (LEADER) (OLDEST) Member(address = akka.tcp://cluster@127.0.0.1:2551, status = Up)
+03:20:29.570 INFO  cluster-akka.actor.default-dispatcher-4 akka.tcp://cluster@127.0.0.1:2551/user/clusterListener - 2 Member(address = akka.tcp://cluster@127.0.0.1:2552, status = Up)
+03:20:29.570 INFO  cluster-akka.actor.default-dispatcher-4 akka.tcp://cluster@127.0.0.1:2551/user/clusterListener - 3 Member(address = akka.tcp://cluster@127.0.0.1:2553, status = Joining)
+~~~
+
+Let's start with the full ClusterListenerActor source file. Note that this actor is implemented as a single Java class that extends an Akka based class.
+
+~~~java
+package cluster;
+
+import akka.actor.AbstractLoggingActor;
+import akka.actor.Cancellable;
+import akka.actor.Props;
+import akka.cluster.Cluster;
+import akka.cluster.ClusterEvent;
+import akka.cluster.ClusterEvent.CurrentClusterState;
+import akka.cluster.Member;
+
+import java.time.Duration;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
+
+class ClusterListenerActor extends AbstractLoggingActor {
+    private final Cluster cluster = Cluster.get(context().system());
+    private Cancellable showClusterStateCancelable;
+
+    @Override
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(ShowClusterState.class, this::showClusterState)
+                .matchAny(this::logClusterEvent)
+                .build();
+    }
+
+    private void showClusterState(ShowClusterState showClusterState) {
+        log().info("{} sent to {}", showClusterState, cluster.selfMember());
+        logClusterMembers(cluster.state());
+        showClusterStateCancelable = null;
+    }
+
+    private void logClusterEvent(Object clusterEventMessage) {
+        log().info("{} sent to {}", clusterEventMessage, cluster.selfMember());
+        logClusterMembers();
+    }
+
+    @Override
+    public void preStart() {
+        log().debug("Start");
+        cluster.subscribe(self(), ClusterEvent.initialStateAsEvents(),
+                ClusterEvent.ClusterDomainEvent.class);
+    }
+
+    @Override
+    public void postStop() {
+        log().debug("Stop");
+        cluster.unsubscribe(self());
+    }
+
+    static Props props() {
+        return Props.create(ClusterListenerActor.class);
+    }
+
+    private void logClusterMembers() {
+        logClusterMembers(cluster.state());
+
+        if (showClusterStateCancelable == null) {
+            showClusterStateCancelable = context().system().scheduler().scheduleOnce(
+                    Duration.ofSeconds(15),
+                    self(),
+                    new ShowClusterState(),
+                    context().system().dispatcher(),
+                    null);
+        }
+    }
+
+    private void logClusterMembers(CurrentClusterState currentClusterState) {
+        Optional<Member> old = StreamSupport.stream(currentClusterState.getMembers().spliterator(), false)
+                .reduce((older, member) -> older.isOlderThan(member) ? older : member);
+
+        Member oldest = old.orElse(cluster.selfMember());
+
+        StreamSupport.stream(currentClusterState.getMembers().spliterator(), false)
+                .forEach(new Consumer<Member>() {
+                    int m = 0;
+
+                    @Override
+                    public void accept(Member member) {
+                        log().info("{} {}{}{}", ++m, leader(member), oldest(member), member);
+                    }
+
+                    private String leader(Member member) {
+                        return member.address().equals(currentClusterState.getLeader()) ? "(LEADER) " : "";
+                    }
+
+                    private String oldest(Member member) {
+                        return oldest.equals(member) ? "(OLDEST) " : "";
+                    }
+                });
+    }
+
+    private static class ShowClusterState {
+        @Override
+        public String toString() {
+            return ShowClusterState.class.getSimpleName();
+        }
+    }
+}
+~~~
+
+This class is an example of a simple actor implementation. However, what is somewhat unique about this actor is that it subscribes to the Akka system to receive cluster event messages. Please see the Akka documentation
+[Subscribe to Cluster Events](https://doc.akka.io/docs/akka/current/cluster-usage.html#subscribe-to-cluster-events)
+for details. Here is the code that subscribes to cluster events.
+
+~~~java
+@Override
+public void preStart() {
+    log().debug("Start");
+    cluster.subscribe(self(), ClusterEvent.initialStateAsEvents(),
+            ClusterEvent.ClusterDomainEvent.class);
+}
+~~~
+
+The actor is set up to receive cluster event messages. As these messages arrive the actor invokes methods written to log the event and log the current state of the cluster.
+
+~~~java
+@Override
+public Receive createReceive() {
+    return receiveBuilder()
+            .match(ShowClusterState.class, this::showClusterState)
+            .matchAny(this::logClusterEvent)
+            .build();
+}
+~~~
+
+As each node in the cluster starts up an instance of the ClusterListenerActor is started. The actor then logs cluster events as they occur in each node. You can examine the logs from each cluster node to review the cluster events and see the state of the cluster nodes, again from the perspective of each node.
+
 ### How it works
 
 In this project, we are going to start with a basic template for an Akka, Java, and Maven based example that has the code and configuration for running an Akka Cluster. The Maven POM file uses two plugins, one for running the code using the `mvn:exec` command, and the other plugin builds a self contained JAR file for running the code using the `java -jar` command.
