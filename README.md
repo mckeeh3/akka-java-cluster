@@ -17,8 +17,6 @@ The project series is composed of the following GitHub repos:
 
 Each project can be cloned, built, and runs independently of the other projects.
 
-This project contains an example implementation of a cluster. Here we will focus on cluster configuration and on running an Akka cluster with multiple nodes.
-
 ### About Akka Clustering
 
 According to the [Akka documentation](https://doc.akka.io/docs/akka/current/common/cluster.html),
@@ -37,7 +35,7 @@ Akka actors communicate with each other via asynchronous messages. Akka actors s
 
 Akka actors are implemented in Java or Scala. You create actors as Java or Scala classes. There are two ways to implement actors, either untyped and typed. Untyped actors are used in this Akka Java cluster example project series.
 
-The Akka documentation section about 
+The Akka documentation section about
 [Actors](https://doc.akka.io/docs/akka/current/actors.html#actors)
 is a good starting point for those of you that are interested in diving into the details of how actors work and how they are implemented.
 
