@@ -10,9 +10,9 @@
 
     <properties>
         <java.version>8</java.version>
-        <scala.version>2.12</scala.version>
-        <akka.version>2.5.23</akka.version>
-        <akka.management.version>1.0.0</akka.management.version>
+        <scala.version>2.13</scala.version>
+        <akka.version>2.6.0</akka.version>
+        <akka.management.version>1.0.5</akka.management.version>
         <fst.version>2.56</fst.version>
     </properties>
 
@@ -27,6 +27,19 @@
             <artifactId>akka-cluster_${scala.version}</artifactId>
             <version>${akka.version}</version>
         </dependency>
+
+        <!-- Added for Akka 2.6.X and Akka Management 1.0.4 -->
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-stream_${scala.version}</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.typesafe.akka</groupId>
+            <artifactId>akka-cluster-sharding_${scala.version}</artifactId>
+            <version>${akka.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.typesafe.akka</groupId>
             <artifactId>akka-cluster-metrics_${scala.version}</artifactId>

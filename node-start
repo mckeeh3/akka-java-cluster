@@ -13,7 +13,6 @@ usage() {
 
 node=$1
 scriptPath=$(dirname $0)
-scriptPath=$(dirname $0)
 scriptPathFull=$(cd $(dirname $0) ; pwd -P)
 scriptFilename=$(basename $scriptPathFull)
 jarFilename=$(find $scriptPath/target -name *allinone.jar*)
